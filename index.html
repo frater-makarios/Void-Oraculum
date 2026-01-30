@@ -20,21 +20,30 @@
         body { 
             background: #020202; color: #00d4ff; font-family: 'Courier New', monospace; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; margin: 0; padding: 20px;
+            min-height: 100vh; margin: 0; padding: 10px; /* Reduzi o padding para mobile */
+            box-sizing: border-box;
         }
-        #canvas { border: 1px solid #00d4ff; background: #000; box-shadow: 0 0 25px #00d4ff22; }
         
-        /* PAINEL DE VARIÁVEIS REESTRUTURADO */
+        /* AJUSTE DE RESPONSIVIDADE DO CANVAS */
+        #canvas { 
+            border: 1px solid #00d4ff; 
+            background: #000; 
+            box-shadow: 0 0 25px #00d4ff22;
+            max-width: 100%; /* Garante que caiba na tela */
+            height: auto;    /* Mantém a proporção */
+        }
+        
         #data-panel {
-            margin-top: 20px; width: 400px; max-width: 90vw;
+            margin-top: 20px; width: 400px; max-width: 100%; /* Ajustado para 100% */
             display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
             font-size: 0.7rem; border: 1px solid #333; padding: 15px; background: rgba(5, 5, 5, 0.9);
+            box-sizing: border-box;
         }
         .data-header { grid-column: span 2; color: #ff00ff; border-bottom: 1px solid #333; margin-bottom: 5px; padding-bottom: 3px; font-weight: bold; }
         .data-item { color: #00d4ff; opacity: 0.9; }
         .data-item span { color: #fff; font-weight: bold; }
 
-        .controls { display: flex; gap: 15px; margin-top: 20px; }
+        .controls { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
         button { 
             background: transparent; color: #00d4ff; border: 1px solid #00d4ff; 
             padding: 10px 20px; cursor: pointer; text-transform: uppercase; font-size: 0.8rem;
@@ -106,18 +115,15 @@
             const city = data.name;
             const agora = new Date();
             
-            // Variáveis temporais de alta sensibilidade
             const ms = agora.getMilliseconds();
             const seg = agora.getSeconds();
             const min = agora.getMinutes();
             const hora = agora.getHours();
             const entropy = agora.getTime();
 
-            // Peso do Intento
             let intentSeed = 0;
             for(let i=0; i<intentoGlobal.length; i++) intentSeed += intentoGlobal.charCodeAt(i);
 
-            // Atualização do Painel de Dados
             document.getElementById('val-intento').innerText = intentSeed + (intentoGlobal.length);
             document.getElementById('val-city').innerText = city.toUpperCase();
             document.getElementById('val-temp').innerText = temp + "°C";
@@ -130,57 +136,42 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Estética cromática baseada na temperatura + milissegundos
             const hue = (200 - (temp * 3)) + (ms / 10);
             ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
             ctx.shadowBlur = 20; ctx.shadowColor = ctx.strokeStyle;
             
-            // O tempo agora é o principal fator de mutação geométrica
-            // steps: depende da umidade e tamanho do texto do intento
             let steps = Math.max(10, Math.floor((humidity/3) + intentoGlobal.length));
             let points = [];
-
-            // Fator de Caos Temporal (Seed baseada no momento exato)
             const chaosSeed = (seg * 1000) + ms + intentSeed;
 
             for (let i = 0; i < steps; i++) {
                 let angle = (i / steps) * Math.PI * 2;
-                
-                // O formato muda radicalmente conforme os milissegundos e segundos passam
                 let harmonic = Math.sin(i * wind + (chaosSeed / 500)) * 70;
                 let r = 100 + harmonic;
-                
                 points.push({ x: 200 + Math.cos(angle) * r, y: 200 + Math.sin(angle) * r });
             }
 
-            // Desenho das Linhas de Sigilo
             ctx.beginPath();
             ctx.lineWidth = 1.2;
             for (let i = 0; i < points.length; i++) {
                 let next = (i + 1) % steps;
-                
-                // O padrão de saltos transversais muda conforme o minuto atual
                 let jumpFactor = (min % 2 === 0) ? 3 : 2;
                 let far = (i + Math.floor(steps / jumpFactor)) % steps;
                 
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[next].x, points[next].y);
-                
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[far].x, points[far].y);
                 
-                // Detalhes nos vértices
                 ctx.fillStyle = ctx.strokeStyle;
                 ctx.fillRect(points[i].x - 1.5, points[i].y - 1.5, 3, 3);
             }
             ctx.stroke();
 
-            // Círculos de contenção com estilo tracejado variável
             ctx.setLineDash([seg % 10, 10]);
             ctx.beginPath(); ctx.arc(200, 200, 180, 0, Math.PI * 2); ctx.stroke();
             ctx.setLineDash([]);
             
-            // Assinatura final no Canvas
             ctx.shadowBlur = 0; ctx.fillStyle = "#ffffff11"; ctx.font = "7px monospace";
             ctx.fillText(`FRATER MARKARIOS | ${city} | ${entropy}`, 100, 395);
         }
