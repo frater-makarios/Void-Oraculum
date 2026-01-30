@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oráculo Tecnomante: Clima e Caos</title>
     <style>
-        /* ESTILOS DO MODAL */
         #modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -38,7 +37,6 @@
         }
         .close-modal-btn:hover { background: #00d4ff; color: #000; }
 
-        /* ESTILOS GERAIS */
         body { 
             background: #050505; 
             color: #00d4ff; 
@@ -56,7 +54,7 @@
             background: #000; 
             max-width: 90vw;
         }
-        .info { margin-top: 15px; text-align: center; font-size: 0.8rem; color: #00d4ff; opacity: 0.6; height: 20px; }
+        .info { margin-top: 15px; text-align: center; font-size: 0.8rem; color: #00d4ff; opacity: 0.6; min-height: 20px; }
         .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         
         #status { 
@@ -88,19 +86,19 @@
     <div id="modal-overlay">
         <div id="modal-content">
             <h3>DIAGNÓSTICO TECNOMÂNTICO</h3>
-            <p>Este sistema transmuta dados atmosféricos em geometria sigilar. Utilizamos <strong>temperatura, vento e umidade</strong> colhidos em tempo real para moldar o caos lógico.</p>
-            <p><i>Projeto desenvolvido por <br><strong>Frater Markarios</strong>.</i></p>
+            <p>Este sistema transmuta dados atmosféricos e temporais em geometria sigilar. Utilizamos <strong>temperatura, vento, umidade e o fluxo do tempo</strong> para moldar o caos lógico.</p>
+            <p><i>Projeto desenvolvido por <strong>Frater Markarios</strong>.</i></p>
             <button class="close-modal-btn" onclick="fecharModal()">Iniciar Ritual</button>
         </div>
     </div>
 
-    <h3 id="status">INICIALIZANDO ÉTER...</h3>
+    <h4 id="status">INICIALIZANDO ÉTER...</h4>
     <canvas id="canvas" width="400" height="400"></canvas>
     
     <div id="weather-report" class="info">Aguardando comando...</div>
     
     <div class="controls">
-        <button onclick="iniciarCanalizacao()">Canalizar Clima Local</button>
+        <button onclick="iniciarCanalizacao()">Canalizar Dados</button>
         <button class="save-btn" onclick="saveSigil()">Consagrar Imagem (PNG)</button>
     </div>
 
@@ -113,7 +111,7 @@
         const mensagensIniciais = [
             "SINCROZINANDO COM O ÉTER...",
             "CONCENTRE SUA VONTADE NO SILÍCIO...",
-            "RESPIRRE EM SINCRONIA COM OS DADOS...",
+            "RESPIRA EM SINCRONIA COM OS DADOS...",
             "ESTABILIZANDO FREQUÊNCIAS VIBRACIONAIS...",
             "O CÓDIGO É APENAS O VEÍCULO...",
             "PERCEBA O FLUXO DA INFORMAÇÃO..."
@@ -122,7 +120,7 @@
         const mensagensProcessando = [
             "COLHENDO ENTROPIA ATMOSFÉRICA...",
             "MAPEANDO VIRTUALIDADE GEOGRÁFICA...",
-            "CALIBRANDO NÓS DE ENERGIA...",
+            "CAPTURANDO O MOMENTO PRESENTE...",
             "TRANSMUTANDO BITS EM GEOMETRIA...",
             "FRAGMENTANDO O CAOS..."
         ];
@@ -138,7 +136,6 @@
             }, 3000);
         }
 
-        // Inicia o loop assim que carrega
         rotacionarMensagens(mensagensIniciais);
 
         function fecharModal() {
@@ -176,14 +173,22 @@
             const wind = data.wind.speed || 1;    
             const humidity = data.main.humidity; 
             const city = data.name;
-            const entropy = Date.now();
+            
+            // Variáveis Temporais (As novas Chaves do Caos)
+            const agora = new Date();
+            const horas = agora.getHours();
+            const minutos = agora.getMinutes();
+            const segundos = agora.getSeconds();
+            const milis = agora.getMilliseconds();
+            const entropyBase = agora.getTime();
 
             statusEl.innerText = `SIGILO DE ${city.toUpperCase()} FIRMADO`;
-            document.getElementById('weather-report').innerText = `T: ${temp}°C | V: ${wind}m/s | H: ${humidity}%`;
+            document.getElementById('weather-report').innerText = `T: ${temp}°C | H: ${humidity}% | HORA: ${horas}:${minutos}:${segundos}`;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            const hue = 200 - (temp * 3);
+            // Cor baseada na Temperatura e nos Segundos
+            const hue = (200 - (temp * 3)) + (segundos * 2);
             ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
             ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
             ctx.shadowBlur = 10;
@@ -192,42 +197,62 @@
             let centerX = 200;
             let centerY = 200;
             let points = [];
-            let steps = Math.max(6, Math.floor(humidity / 4)); 
+            
+            // O número de pontas agora é influenciado pelos Minutos
+            let steps = Math.max(6, Math.floor((humidity / 4) + (minutos / 10))); 
 
             for (let i = 0; i < steps; i++) {
                 let angle = (i / steps) * Math.PI * 2;
-                let radius = 130 + Math.sin(i * wind + entropy) * 40;
+                
+                // O vento e os SEGUNDOS distorcem o raio
+                // Usamos os milissegundos para uma variação sutil e irrepetível
+                let timeModifier = (segundos * 2) + (milis / 500);
+                let radius = 120 + Math.sin(i * wind + timeModifier) * 50;
+                
                 points.push({ x: centerX + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius });
             }
 
+            // 1. Círculos de Contenção (Baseados nas Horas)
             ctx.beginPath();
-            ctx.lineWidth = 1;
-            ctx.arc(centerX, centerY, 155, 0, Math.PI * 2);
-            ctx.setLineDash([5, 10]);
+            ctx.lineWidth = 0.5;
+            // O raio do círculo externo muda levemente a cada hora do dia
+            ctx.arc(centerX, centerY, 150 + (horas), 0, Math.PI * 2);
+            ctx.setLineDash([2, 8]);
             ctx.stroke();
             ctx.setLineDash([]); 
 
+            // 2. Conexões Geométricas
             ctx.beginPath();
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1.2;
             for (let i = 0; i < points.length; i++) {
                 let next = (i + 1) % steps;
-                let far = (i + Math.floor(steps / 2)) % steps;
+                // O padrão de cruzamento muda conforme os Segundos (Par ou Ímpar)
+                let jump = (segundos % 2 === 0) ? Math.floor(steps / 2) : Math.floor(steps / 3);
+                let far = (i + jump) % steps;
+                
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[next].x, points[next].y);
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[far].x, points[far].y);
+                
+                // Nodos de energia
                 ctx.fillRect(points[i].x - 2, points[i].y - 2, 4, 4);
             }
             ctx.stroke();
 
+            // 3. Glifos de Saída
             ctx.shadowBlur = 0;
-            ctx.font = "9px monospace";
-            ctx.fillStyle = "#ffffff44";
+            ctx.font = "8px monospace";
+            ctx.fillStyle = "#ffffff33";
+            ctx.fillText(`FRATER MARKARIOS // ${entropyBase}`, 10, 390);
+            ctx.fillText(`TIME_SEED: ${horas}${minutos}${segundos}`, 10, 15);
+            
+            // Adiciona hashes temporais nos vértices
             points.forEach((p, i) => {
-                if (i % 2 === 0) ctx.fillText("0x" + (entropy + i).toString(16).slice(-4), p.x + 8, p.y);
+                if (i % 3 === 0) {
+                    ctx.fillText((entropyBase + i).toString(16).slice(-3), p.x + 5, p.y - 5);
+                }
             });
-
-            ctx.fillText(`FRATER MARKARIOS // ${entropy}`, 10, 390);
         }
 
         function saveSigil() {
