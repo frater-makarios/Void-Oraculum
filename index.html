@@ -24,14 +24,15 @@
         }
         #canvas { border: 1px solid #00d4ff; background: #000; box-shadow: 0 0 25px #00d4ff22; }
         
-        /* PAINEL DE VARIÁVEIS */
+        /* PAINEL DE VARIÁVEIS REESTRUTURADO */
         #data-panel {
             margin-top: 20px; width: 400px; max-width: 90vw;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            font-size: 0.75rem; border: 1px solid #333; padding: 15px; background: rgba(10, 10, 10, 0.8);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+            font-size: 0.7rem; border: 1px solid #333; padding: 15px; background: rgba(5, 5, 5, 0.9);
         }
-        .data-item { color: #00d4ff; opacity: 0.8; }
-        .data-item span { color: #ff00ff; font-weight: bold; }
+        .data-header { grid-column: span 2; color: #ff00ff; border-bottom: 1px solid #333; margin-bottom: 5px; padding-bottom: 3px; font-weight: bold; }
+        .data-item { color: #00d4ff; opacity: 0.9; }
+        .data-item span { color: #fff; font-weight: bold; }
 
         .controls { display: flex; gap: 15px; margin-top: 20px; }
         button { 
@@ -54,17 +55,20 @@
         </div>
     </div>
 
-    <h2 id="status" style="font-size: 1rem; margin-bottom: 20px; height: 1.2em;">AGUARDANDO OPERADOR...</h2>
+    <h2 id="status" style="font-size: 1rem; margin-bottom: 15px; height: 1.2em; text-transform: uppercase;">Aguardando...</h2>
     
     <canvas id="canvas" width="400" height="400"></canvas>
 
     <div id="data-panel">
-        <div class="data-item">INTENTO: <span id="val-intento">---</span></div>
-        <div class="data-item">TEMP: <span id="val-temp">---</span></div>
-        <div class="data-item">HUMID: <span id="val-hum">---</span></div>
-        <div class="data-item">VENTO: <span id="val-wind">---</span></div>
-        <div class="data-item">HORA: <span id="val-time">---</span></div>
-        <div class="data-item">ENTROPIA: <span id="val-entropy">---</span></div>
+        <div class="data-header">MÉTRICAS DA CANALIZAÇÃO</div>
+        <div class="data-item">INTENTO_SEED: <span id="val-intento">---</span></div>
+        <div class="data-item">CIDADE: <span id="val-city">---</span></div>
+        <div class="data-item">TEMPERATURA: <span id="val-temp">---</span></div>
+        <div class="data-item">UMIDADE: <span id="val-hum">---</span></div>
+        <div class="data-item">VEL_VENTO: <span id="val-wind">---</span></div>
+        <div class="data-item">COORD: <span id="val-coord">---</span></div>
+        <div class="data-item">TEMPO_HASH: <span id="val-time-hash">---</span></div>
+        <div class="data-item">TIMESTAMP: <span id="val-entropy">---</span></div>
     </div>
     
     <div class="controls">
@@ -85,84 +89,106 @@
         }
 
         function iniciarCanalizacao() {
-            document.getElementById('status').innerText = "COLHENDO DADOS DO ÉTER...";
+            document.getElementById('status').innerText = "CAPTURANDO FLUXO ATMOSFÉRICO...";
             navigator.geolocation.getCurrentPosition(pos => {
-                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&appid=${API_KEY}&units=metric`)
-                .then(r => r.json()).then(data => drawSigil(data))
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`)
+                .then(r => r.json()).then(data => drawSigil(data, lat, lon))
                 .catch(() => { document.getElementById('status').innerText = "ERRO NA API"; });
             }, () => { document.getElementById('status').innerText = "GPS NÃO DETECTADO"; });
         }
 
-        function drawSigil(data) {
+        function drawSigil(data, lat, lon) {
             const temp = data.main.temp;
             const humidity = data.main.humidity;
             const wind = data.wind.speed || 1;
+            const city = data.name;
             const agora = new Date();
-            const timeSeed = agora.getHours() + agora.getMinutes() + agora.getSeconds();
+            
+            // Variáveis temporais de alta sensibilidade
+            const ms = agora.getMilliseconds();
+            const seg = agora.getSeconds();
+            const min = agora.getMinutes();
+            const hora = agora.getHours();
             const entropy = agora.getTime();
 
-            // Semente do Intento (ASCII)
+            // Peso do Intento
             let intentSeed = 0;
             for(let i=0; i<intentoGlobal.length; i++) intentSeed += intentoGlobal.charCodeAt(i);
 
-            // Atualizar Painel de Variáveis
-            document.getElementById('val-intento').innerText = intentSeed;
+            // Atualização do Painel de Dados
+            document.getElementById('val-intento').innerText = intentSeed + (intentoGlobal.length);
+            document.getElementById('val-city').innerText = city.toUpperCase();
             document.getElementById('val-temp').innerText = temp + "°C";
             document.getElementById('val-hum').innerText = humidity + "%";
             document.getElementById('val-wind').innerText = wind + "m/s";
-            document.getElementById('val-time').innerText = agora.toLocaleTimeString();
-            document.getElementById('val-entropy').innerText = entropy.toString(16).toUpperCase();
-            document.getElementById('status').innerText = "SIGILO CONSAGRADO";
+            document.getElementById('val-coord').innerText = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+            document.getElementById('val-time-hash').innerText = `${hora}${min}${seg}${ms}`;
+            document.getElementById('val-entropy').innerText = entropy;
+            document.getElementById('status').innerText = "CONEXÃO FIRMADA";
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Cor influenciada pela Temp e pelo Tempo
-            const hue = (200 - (temp * 3)) + (agora.getSeconds() * 2);
+            // Estética cromática baseada na temperatura + milissegundos
+            const hue = (200 - (temp * 3)) + (ms / 10);
             ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-            ctx.shadowBlur = 15; ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 20; ctx.shadowColor = ctx.strokeStyle;
             
-            // Geometria baseada em Humidade e Tamanho do Intento
-            let steps = Math.max(6, Math.floor((humidity/4) + intentoGlobal.length));
+            // O tempo agora é o principal fator de mutação geométrica
+            // steps: depende da umidade e tamanho do texto do intento
+            let steps = Math.max(10, Math.floor((humidity/3) + intentoGlobal.length));
             let points = [];
+
+            // Fator de Caos Temporal (Seed baseada no momento exato)
+            const chaosSeed = (seg * 1000) + ms + intentSeed;
 
             for (let i = 0; i < steps; i++) {
                 let angle = (i / steps) * Math.PI * 2;
-                // Variação de Raio influenciada por Vento, Segundos e Intento
-                let varRaio = Math.sin(i * wind + timeSeed + intentSeed) * 50;
-                let r = 120 + varRaio;
+                
+                // O formato muda radicalmente conforme os milissegundos e segundos passam
+                let harmonic = Math.sin(i * wind + (chaosSeed / 500)) * 70;
+                let r = 100 + harmonic;
+                
                 points.push({ x: 200 + Math.cos(angle) * r, y: 200 + Math.sin(angle) * r });
             }
 
-            // Desenho do Sigilo
+            // Desenho das Linhas de Sigilo
             ctx.beginPath();
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1.2;
             for (let i = 0; i < points.length; i++) {
                 let next = (i + 1) % steps;
-                let far = (i + Math.floor(steps / 2)) % steps;
+                
+                // O padrão de saltos transversais muda conforme o minuto atual
+                let jumpFactor = (min % 2 === 0) ? 3 : 2;
+                let far = (i + Math.floor(steps / jumpFactor)) % steps;
                 
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[next].x, points[next].y);
+                
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[far].x, points[far].y);
                 
-                // Pequenos nodos nos vértices
+                // Detalhes nos vértices
                 ctx.fillStyle = ctx.strokeStyle;
-                ctx.fillRect(points[i].x - 2, points[i].y - 2, 4, 4);
+                ctx.fillRect(points[i].x - 1.5, points[i].y - 1.5, 3, 3);
             }
             ctx.stroke();
 
-            // Elementos estéticos de Alquimia Digital
-            ctx.setLineDash([5, 15]);
-            ctx.beginPath(); ctx.arc(200, 200, 160, 0, Math.PI * 2); ctx.stroke();
+            // Círculos de contenção com estilo tracejado variável
+            ctx.setLineDash([seg % 10, 10]);
+            ctx.beginPath(); ctx.arc(200, 200, 180, 0, Math.PI * 2); ctx.stroke();
             ctx.setLineDash([]);
             
-            ctx.shadowBlur = 0; ctx.fillStyle = "#ffffff22"; ctx.font = "8px monospace";
-            ctx.fillText(`OPERADOR: MARKARIOS`, 150, 385);
+            // Assinatura final no Canvas
+            ctx.shadowBlur = 0; ctx.fillStyle = "#ffffff11"; ctx.font = "7px monospace";
+            ctx.fillText(`FRATER MARKARIOS | ${city} | ${entropy}`, 100, 395);
         }
 
         function saveSigil() {
             const link = document.createElement('a');
-            link.download = `sigilo-${intentoGlobal.substring(0,10)}.png`;
+            const ts = new Date().getTime();
+            link.download = `sigilo-markarios-${ts}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
