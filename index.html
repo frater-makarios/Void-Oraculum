@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oráculo Tecnomante: Frater Markarios</title>
+    <title>Void-Oraculum | Frater Markarios</title>
     <style>
+        /* HEADER TECNOMÂNTICO */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: rgba(0, 0, 0, 0.9); border-bottom: 1px solid #ff00ff44;
+            padding: 10px 0; text-align: center; font-size: 0.8rem;
+            letter-spacing: 4px; color: #ff00ff; text-shadow: 0 0 8px #ff00ff88;
+            z-index: 900;
+        }
+
         #modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.98); display: flex; align-items: center; justify-content: center; z-index: 1000;
@@ -17,13 +26,14 @@
         #intento-input {
             width: 100%; padding: 12px; background: #0a0a0a; border: 1px solid #ff00ff;
             color: #00d4ff; font-family: monospace; margin: 15px 0; text-align: center; outline: none;
-            box-sizing: border-box;
+            box-sizing: border-box; transition: 0.3s;
         }
+        #intento-input.error { border-color: red; box-shadow: 0 0 10px red; }
+
         body { 
             background: #020202; color: #00d4ff; font-family: 'Courier New', monospace; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box;
-            padding-bottom: 60px; /* Espaço para o footer não sobrepor */
+            min-height: 100vh; margin: 0; padding: 60px 10px 80px 10px; box-sizing: border-box;
         }
         #canvas { 
             border: 1px solid #00d4ff; background: #000; 
@@ -38,8 +48,8 @@
         .data-header { grid-column: span 2; color: #ff00ff; border-bottom: 1px solid #333; margin-bottom: 5px; padding-bottom: 3px; font-weight: bold; }
         .data-item { color: #00d4ff; opacity: 0.9; }
         .data-item span { color: #fff; font-weight: bold; }
-        .controls { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
         
+        .controls { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
         button { 
             background: transparent; color: #00d4ff; border: 1px solid #00d4ff; 
             padding: 10px 20px; cursor: pointer; text-transform: uppercase; font-size: 0.8rem;
@@ -47,45 +57,38 @@
         button:hover { background: #00d4ff; color: #000; }
         .save-btn { border-color: #ff00ff; color: #ff00ff; }
         
-        /* FOOTER TECNOMÂNTICO */
         footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            border-top: 1px solid #00d4ff44;
-            padding: 10px 0;
-            text-align: center;
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            color: #00d4ff;
-            text-shadow: 0 0 5px #00d4ff88;
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(0, 0, 0, 0.9); border-top: 1px solid #00d4ff44;
+            padding: 10px 0; text-align: center; font-size: 0.7rem;
+            letter-spacing: 2px; color: #00d4ff; text-shadow: 0 0 5px #00d4ff88;
         }
         .footer-glitch { color: #ff00ff; }
-
         .instrucao { font-size: 0.8rem; color: #00d4ff; margin-bottom: 10px; text-align: left; }
     </style>
 </head>
 <body>
+
+    <header>VOID-ORACULUM | 0.1</header>
 
     <div id="modal-overlay">
         <div id="modal-content">
             <h3 style="color: #ff00ff; letter-spacing: 5px; margin-bottom: 20px;">PROTOCOLO DE ATIVAÇÃO</h3>
             
             <div class="instrucao">
-                • <b>O SIGILO:</b> Criado através da fusão da sua VONTADE com as variáveis ESPAÇO-TEMPORAIS do ambiente local.<br><br>
-                • <b>REQUISITO:</b> Para que o oráculo colha a entropia do clima (Espaço), você deve <b>autorizar a geolocalização</b> quando solicitado pelo navegador.<br><br>
-                • <b>INTENTO:</b> Digite seu desejo abaixo para integrá-lo à geometria sagrada.
+                • <b>O SIGILO:</b> Geometria gerada pela fusão da sua VONTADE com variáveis ESPAÇO-TEMPORAIS locais.<br><br>
+                • <b>REQUISITO:</b> Requer autorização de <b>geolocalização</b> para sintonização atmosférica.<br><br>
+                • <b>AVISO:</b> O oráculo não despertará sem a inserção de um INTENTO claro.
             </div>
 
-            <input type="text" id="intento-input" placeholder="Digite seu intento aqui..." autocomplete="off">
+            <input type="text" id="intento-input" placeholder="DIGITE SEU INTENTO AQUI..." autocomplete="off">
             
-            <button onclick="fecharModal()">Consagrar e Iniciar</button>
+            <button onclick="validarEFechar()">Consagrar e Iniciar</button>
+            <p id="error-msg" style="color: red; font-size: 0.7rem; margin-top: 10px; display: none;">* O INTENTO É OBRIGATÓRIO PARA A CANALIZAÇÃO.</p>
         </div>
     </div>
 
-    <h2 id="status" style="font-size: 1rem; margin-bottom: 15px; height: 1.2em; text-transform: uppercase;">Aguardando Operador...</h2>
+    <h2 id="status" style="font-size: 1rem; margin-bottom: 15px; height: 1.2em; text-transform: uppercase;">Aguardando...</h2>
     
     <canvas id="canvas" width="400" height="400"></canvas>
 
@@ -116,8 +119,18 @@
         const ctx = canvas.getContext('2d');
         let intentoGlobal = "";
 
-        function fecharModal() {
-            intentoGlobal = document.getElementById('intento-input').value || "CAOS";
+        function validarEFechar() {
+            const input = document.getElementById('intento-input');
+            const errorMsg = document.getElementById('error-msg');
+            
+            if (input.value.trim() === "") {
+                input.classList.add('error');
+                errorMsg.style.display = 'block';
+                setTimeout(() => input.classList.remove('error'), 500);
+                return;
+            }
+            
+            intentoGlobal = input.value;
             document.getElementById('modal-overlay').style.display = 'none';
             iniciarCanalizacao();
         }
@@ -132,7 +145,7 @@
                 .catch(() => { document.getElementById('status').innerText = "ERRO NA API"; });
             }, () => { 
                 document.getElementById('status').innerText = "GPS BLOQUEADO";
-                alert("O ritual falhou: A geolocalização é necessária para acessar as variáveis de Espaço.");
+                alert("O ritual falhou: A geolocalização é necessária.");
             });
         }
 
@@ -185,12 +198,10 @@
                 let next = (i + 1) % steps;
                 let jumpFactor = (min % 2 === 0) ? 3 : 2;
                 let far = (i + Math.floor(steps / jumpFactor)) % steps;
-                
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[next].x, points[next].y);
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[far].x, points[far].y);
-                
                 ctx.fillStyle = ctx.strokeStyle;
                 ctx.fillRect(points[i].x - 1.5, points[i].y - 1.5, 3, 3);
             }
@@ -201,13 +212,13 @@
             ctx.setLineDash([]);
             
             ctx.shadowBlur = 0; ctx.fillStyle = "#ffffff11"; ctx.font = "7px monospace";
-            ctx.fillText(`FRATER MARKARIOS | ${city.toUpperCase()} | ${entropy}`, 100, 395);
+            ctx.fillText(`VOID-ORACULUM | ${city.toUpperCase()} | ${entropy}`, 100, 395);
         }
 
         function saveSigil() {
             const link = document.createElement('a');
             const ts = new Date().getTime();
-            link.download = `sigilo-${intentoGlobal.substring(0,8)}-${ts}.png`;
+            link.download = `sigilo-${ts}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
