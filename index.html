@@ -5,6 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oráculo Tecnomante: Clima e Caos</title>
     <style>
+        /* ESTILOS DO MODAL */
+        #modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        #modal-content {
+            background: #0a0a0a;
+            border: 1px solid #00d4ff;
+            padding: 30px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 50px #00d4ff22;
+        }
+        #modal-content h3 { color: #ff00ff; margin-top: 0; }
+        #modal-content p { line-height: 1.6; font-size: 0.9rem; color: #00d4ff; }
+        .close-modal-btn {
+            background: #00d4ff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* ESTILOS GERAIS */
         body { 
             background: #050505; 
             color: #00d4ff; 
@@ -42,6 +74,18 @@
 </head>
 <body>
 
+    <div id="modal-overlay">
+        <div id="modal-content">
+            <h3>DIAGNÓSTICO TECNOMÂNTICO</h3>
+            <p>
+                Este sistema transmuta dados atmosféricos em geometria sigilar. 
+                Utilizamos <strong>temperatura, vento e umidade</strong> colhidos em tempo real via API para moldar o caos logico.
+            </p>
+            <p><i>Projeto desenvolvido por <strong>Frater Markarios</strong>.</i></p>
+            <button class="close-modal-btn" onclick="fecharModal()">Iniciar Ritual</button>
+        </div>
+    </div>
+
     <h2 id="status">SINCROZINANDO COM O ÉTER...</h2>
     <canvas id="canvas" width="400" height="400"></canvas>
     
@@ -57,6 +101,11 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
+        // Função para fechar o modal
+        function fecharModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
         function fetchWeatherAndDraw() {
             document.getElementById('status').innerText = "CAPTURANDO GEOLOCALIZAÇÃO...";
 
@@ -66,14 +115,12 @@
 
                 fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`)
                     .then(response => {
-                        if (!response.ok) throw new Error('Falha na autenticação da API');
+                        if (!response.ok) throw new Error('API Key inválida');
                         return response.json();
                     })
-                    .then(data => {
-                        drawSigil(data);
-                    })
+                    .then(data => drawSigil(data))
                     .catch(err => {
-                        document.getElementById('status').innerText = "ERRO NA CONEXÃO MÍSTICA";
+                        document.getElementById('status').innerText = "ERRO NA CONEXÃO";
                         console.error(err);
                     });
             }, error => {
@@ -103,13 +150,10 @@
             let centerX = 200;
             let centerY = 200;
             let points = [];
-            // O número de pontas depende da humidade
             let steps = Math.max(6, Math.floor(humidity / 4)); 
 
-            // 1. Calcular pontos de ancoragem
             for (let i = 0; i < steps; i++) {
                 let angle = (i / steps) * Math.PI * 2;
-                // O vento causa distorção nos raios
                 let radius = 130 + Math.sin(i * wind + entropy) * 40;
                 points.push({
                     x: centerX + Math.cos(angle) * radius,
@@ -117,58 +161,44 @@
                 });
             }
 
-            // 2. Desenhar Circunferências de Contenção (Geometria Alquímica)
+            // Geometria Alquímica
             ctx.beginPath();
             ctx.lineWidth = 1;
-            ctx.arc(centerX, centerY, 160, 0, Math.PI * 2);
-            ctx.setLineDash([5, 10]); // Efeito rúnico tracejado
-            ctx.stroke();
-            ctx.setLineDash([]); // Reset
-
-            ctx.beginPath();
             ctx.arc(centerX, centerY, 150, 0, Math.PI * 2);
+            ctx.setLineDash([5, 10]);
             ctx.stroke();
+            ctx.setLineDash([]); 
 
-            // 3. Traçar Conexões (Lógica de Sigilo)
+            // Conexões de Sigilo
             ctx.beginPath();
-            ctx.lineWidth = 1.5 + (wind / 4);
+            ctx.lineWidth = 1.5;
             for (let i = 0; i < points.length; i++) {
-                // Conecta cada ponto ao próximo e a um ponto oposto (salto de entropia)
                 let next = (i + 1) % steps;
                 let far = (i + Math.floor(steps / 2)) % steps;
                 
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[next].x, points[next].y);
-                
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[far].x, points[far].y);
-
-                // Desenha pequenos nodos (círculos) em cada vértice
                 ctx.fillRect(points[i].x - 2, points[i].y - 2, 4, 4);
             }
             ctx.stroke();
 
-            // 4. Inserir Glifos Digitais
+            // Glifos
             ctx.shadowBlur = 0;
             ctx.font = "9px monospace";
             ctx.fillStyle = "#ffffff44";
             points.forEach((p, i) => {
-                if (i % 2 === 0) {
-                    ctx.fillText("0x" + (entropy + i).toString(16).slice(-4), p.x + 8, p.y);
-                }
+                if (i % 2 === 0) ctx.fillText("0x" + (entropy + i).toString(16).slice(-4), p.x + 8, p.y);
             });
 
-            // Núcleo do Sigilo
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillText(`STREAM_ID: ${entropy}`, 10, 390);
+            ctx.fillText(`AUTOR: FRATER MARKARIOS`, 10, 15);
+            ctx.fillText(`ENTROPIA: ${entropy}`, 10, 390);
         }
 
         function saveSigil() {
             const link = document.createElement('a');
-            link.download = `sigilo-tecnomante-${Date.now()}.png`;
+            link.download = `sigilo-markarios-${Date.now()}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
