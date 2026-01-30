@@ -3,36 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oráculo Tecnomante: Clima e Caos</title>
+    <title>Oráculo Tecnomante: Frater Markarios</title>
     <style>
         #modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex; align-items: center; justify-content: center; z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.98); display: flex; align-items: center; justify-content: center; z-index: 1000;
         }
         #modal-content {
-            background: #0a0a0a; border: 1px solid #00d4ff; padding: 30px;
-            max-width: 500px; text-align: center; box-shadow: 0 0 50px #00d4ff22;
+            background: #000; border: 1px solid #00d4ff; padding: 40px;
+            max-width: 450px; text-align: center; box-shadow: 0 0 40px #00d4ff33;
         }
-        #modal-content h3 { color: #ff00ff; margin-top: 0; letter-spacing: 3px; }
         #intento-input {
-            width: 90%; padding: 10px; background: #111; border: 1px solid #ff00ff;
-            color: #00d4ff; font-family: monospace; margin: 20px 0; text-align: center;
-        }
-        .close-modal-btn {
-            background: transparent; color: #00d4ff; border: 1px solid #00d4ff;
-            padding: 10px 20px; cursor: pointer; font-weight: bold; text-transform: uppercase;
+            width: 100%; padding: 12px; background: #0a0a0a; border: 1px solid #ff00ff;
+            color: #00d4ff; font-family: monospace; margin: 20px 0; text-align: center; outline: none;
         }
         body { 
-            background: #050505; color: #00d4ff; font-family: 'Courier New', monospace; 
+            background: #020202; color: #00d4ff; font-family: 'Courier New', monospace; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; margin: 0; 
+            min-height: 100vh; margin: 0; padding: 20px;
         }
-        #canvas { border: 2px solid #00d4ff; box-shadow: 0 0 30px #00d4ff55; background: #000; max-width: 90vw; }
-        #status { text-align: center; min-height: 1.5em; margin-bottom: 20px; text-shadow: 0 0 8px #00d4ff; }
-        .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
-        button { background: transparent; color: #00d4ff; border: 1px solid #00d4ff; padding: 12px 24px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        #canvas { border: 1px solid #00d4ff; background: #000; box-shadow: 0 0 25px #00d4ff22; }
+        
+        /* PAINEL DE VARIÁVEIS */
+        #data-panel {
+            margin-top: 20px; width: 400px; max-width: 90vw;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            font-size: 0.75rem; border: 1px solid #333; padding: 15px; background: rgba(10, 10, 10, 0.8);
+        }
+        .data-item { color: #00d4ff; opacity: 0.8; }
+        .data-item span { color: #ff00ff; font-weight: bold; }
+
+        .controls { display: flex; gap: 15px; margin-top: 20px; }
+        button { 
+            background: transparent; color: #00d4ff; border: 1px solid #00d4ff; 
+            padding: 10px 20px; cursor: pointer; text-transform: uppercase; font-size: 0.8rem;
+        }
         button:hover { background: #00d4ff; color: #000; }
         .save-btn { border-color: #ff00ff; color: #ff00ff; }
     </style>
@@ -41,33 +46,37 @@
 
     <div id="modal-overlay">
         <div id="modal-content">
-            <h3>FOCALIZAR INTENTO</h3>
-            <p>Escreva sua vontade abaixo. Suas palavras serão convertidas em frequência e integradas à geometria do caos.</p>
-            <input type="text" id="intento-input" placeholder="Ex: Eu possuo clareza mental" autocomplete="off">
-            <br>
-            <button class="close-modal-btn" onclick="fecharModal()">Consagrar e Iniciar</button>
-            <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 15px;"><i>Projeto: Frater Markarios</i></p>
+            <h3 style="color: #ff00ff; letter-spacing: 5px;">FOCALIZAR INTENTO</h3>
+            <p style="font-size: 0.85rem;">Insira sua Vontade para transmutação digital:</p>
+            <input type="text" id="intento-input" placeholder="Sua intenção aqui..." autocomplete="off">
+            <button onclick="fecharModal()">Consagrar Vontade</button>
+            <p style="font-size: 0.6rem; margin-top: 20px; opacity: 0.4;">OPERAÇÃO: FRATER MARKARIOS</p>
         </div>
     </div>
 
-    <h2 id="status">INICIALIZANDO ÉTER...</h2>
+    <h2 id="status" style="font-size: 1rem; margin-bottom: 20px; height: 1.2em;">AGUARDANDO OPERADOR...</h2>
+    
     <canvas id="canvas" width="400" height="400"></canvas>
-    <div id="weather-report" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.6;"></div>
+
+    <div id="data-panel">
+        <div class="data-item">INTENTO: <span id="val-intento">---</span></div>
+        <div class="data-item">TEMP: <span id="val-temp">---</span></div>
+        <div class="data-item">HUMID: <span id="val-hum">---</span></div>
+        <div class="data-item">VENTO: <span id="val-wind">---</span></div>
+        <div class="data-item">HORA: <span id="val-time">---</span></div>
+        <div class="data-item">ENTROPIA: <span id="val-entropy">---</span></div>
+    </div>
     
     <div class="controls">
         <button onclick="iniciarCanalizacao()">Recanalizar</button>
-        <button class="save-btn" onclick="saveSigil()">Consagrar Imagem</button>
+        <button class="save-btn" onclick="saveSigil()">Salvar Sigilo</button>
     </div>
 
     <script>
         const API_KEY = '205dfbe3470e81f71e2b9f2f6a46443d'; 
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const statusEl = document.getElementById('status');
         let intentoGlobal = "";
-
-        const mensagensProcessando = ["COLHENDO ENTROPIA...", "TRANSMUTANDO INTENTO...", "MAPEANDO VOTOS...", "FRAGMENTANDO O CAOS..."];
-        let loopStatus;
 
         function fecharModal() {
             intentoGlobal = document.getElementById('intento-input').value || "CAOS";
@@ -75,82 +84,85 @@
             iniciarCanalizacao();
         }
 
-        function rotacionarMensagens(lista) {
-            let i = 0;
-            clearInterval(loopStatus);
-            loopStatus = setInterval(() => {
-                statusEl.innerText = lista[i];
-                i = (i + 1) % lista.length;
-            }, 2500);
-        }
-
         function iniciarCanalizacao() {
-            rotacionarMensagens(mensagensProcessando);
+            document.getElementById('status').innerText = "COLHENDO DADOS DO ÉTER...";
             navigator.geolocation.getCurrentPosition(pos => {
                 fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&appid=${API_KEY}&units=metric`)
-                .then(r => r.json()).then(data => { clearInterval(loopStatus); drawSigil(data); });
-            }, err => { clearInterval(loopStatus); statusEl.innerText = "ERRO GEOGRÁFICO"; });
+                .then(r => r.json()).then(data => drawSigil(data))
+                .catch(() => { document.getElementById('status').innerText = "ERRO NA API"; });
+            }, () => { document.getElementById('status').innerText = "GPS NÃO DETECTADO"; });
         }
 
         function drawSigil(data) {
-            const temp = data.main.temp;         
-            const wind = data.wind.speed || 1;    
-            const humidity = data.main.humidity; 
+            const temp = data.main.temp;
+            const humidity = data.main.humidity;
+            const wind = data.wind.speed || 1;
             const agora = new Date();
-            
-            // CONVERSÃO DO INTENTO EM NÚMERO (Semente Mística)
-            let intentoValue = 0;
-            for(let i=0; i < intentoGlobal.length; i++) {
-                intentoValue += intentoGlobal.charCodeAt(i);
-            }
+            const timeSeed = agora.getHours() + agora.getMinutes() + agora.getSeconds();
+            const entropy = agora.getTime();
 
-            statusEl.innerText = `SIGILO FIRMADO: ${intentoGlobal.toUpperCase()}`;
-            document.getElementById('weather-report').innerText = `T: ${temp}°C | INTENTO_VAL: ${intentoValue}`;
+            // Semente do Intento (ASCII)
+            let intentSeed = 0;
+            for(let i=0; i<intentoGlobal.length; i++) intentSeed += intentoGlobal.charCodeAt(i);
+
+            // Atualizar Painel de Variáveis
+            document.getElementById('val-intento').innerText = intentSeed;
+            document.getElementById('val-temp').innerText = temp + "°C";
+            document.getElementById('val-hum').innerText = humidity + "%";
+            document.getElementById('val-wind').innerText = wind + "m/s";
+            document.getElementById('val-time').innerText = agora.toLocaleTimeString();
+            document.getElementById('val-entropy').innerText = entropy.toString(16).toUpperCase();
+            document.getElementById('status').innerText = "SIGILO CONSAGRADO";
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Cor influenciada pela Temp e pelo Tempo
             const hue = (200 - (temp * 3)) + (agora.getSeconds() * 2);
             ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-            ctx.shadowBlur = 10; ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 15; ctx.shadowColor = ctx.strokeStyle;
             
-            let steps = Math.max(8, Math.floor((humidity / 3) + (intentoGlobal.length))); 
+            // Geometria baseada em Humidade e Tamanho do Intento
+            let steps = Math.max(6, Math.floor((humidity/4) + intentoGlobal.length));
             let points = [];
 
             for (let i = 0; i < steps; i++) {
                 let angle = (i / steps) * Math.PI * 2;
-                // O Intento agora influencia o raio e a vibração
-                let radius = 110 + Math.sin(i * wind + intentoValue) * 60;
-                points.push({ x: 200 + Math.cos(angle) * radius, y: 200 + Math.sin(angle) * radius });
+                // Variação de Raio influenciada por Vento, Segundos e Intento
+                let varRaio = Math.sin(i * wind + timeSeed + intentSeed) * 50;
+                let r = 120 + varRaio;
+                points.push({ x: 200 + Math.cos(angle) * r, y: 200 + Math.sin(angle) * r });
             }
 
-            ctx.beginPath();
-            ctx.setLineDash([2, 5]);
-            ctx.arc(200, 200, 165, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
+            // Desenho do Sigilo
             ctx.beginPath();
             ctx.lineWidth = 1.5;
             for (let i = 0; i < points.length; i++) {
                 let next = (i + 1) % steps;
-                // O "pulo" das conexões depende do peso das palavras do intento
-                let jump = (intentoValue % 3 === 0) ? 2 : 3;
-                let far = (i + jump) % steps;
+                let far = (i + Math.floor(steps / 2)) % steps;
                 
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[next].x, points[next].y);
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[far].x, points[far].y);
+                
+                // Pequenos nodos nos vértices
+                ctx.fillStyle = ctx.strokeStyle;
                 ctx.fillRect(points[i].x - 2, points[i].y - 2, 4, 4);
             }
             ctx.stroke();
 
-            ctx.shadowBlur = 0; ctx.font = "8px monospace"; ctx.fillStyle = "#ffffff33";
-            ctx.fillText(`FRATER MARKARIOS // INTENTO: ${intentoGlobal}`, 10, 390);
+            // Elementos estéticos de Alquimia Digital
+            ctx.setLineDash([5, 15]);
+            ctx.beginPath(); ctx.arc(200, 200, 160, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.shadowBlur = 0; ctx.fillStyle = "#ffffff22"; ctx.font = "8px monospace";
+            ctx.fillText(`OPERADOR: MARKARIOS`, 150, 385);
         }
 
         function saveSigil() {
             const link = document.createElement('a');
-            link.download = `sigilo-${intentoGlobal.replace(/\s+/g, '-')}.png`;
+            link.download = `sigilo-${intentoGlobal.substring(0,10)}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
