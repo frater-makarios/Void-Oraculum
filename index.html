@@ -9,97 +9,54 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
         }
         #modal-content {
-            background: #0a0a0a;
-            border: 1px solid #00d4ff;
-            padding: 30px;
-            max-width: 500px;
-            text-align: center;
-            box-shadow: 0 0 50px #00d4ff22;
+            background: #0a0a0a; border: 1px solid #00d4ff; padding: 30px;
+            max-width: 500px; text-align: center; box-shadow: 0 0 50px #00d4ff22;
         }
         #modal-content h3 { color: #ff00ff; margin-top: 0; letter-spacing: 3px; }
-        #modal-content p { line-height: 1.6; font-size: 0.9rem; color: #00d4ff; }
+        #intento-input {
+            width: 90%; padding: 10px; background: #111; border: 1px solid #ff00ff;
+            color: #00d4ff; font-family: monospace; margin: 20px 0; text-align: center;
+        }
         .close-modal-btn {
-            background: transparent;
-            color: #00d4ff;
-            border: 1px solid #00d4ff;
-            padding: 10px 20px;
-            cursor: pointer;
-            margin-top: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: 0.3s;
+            background: transparent; color: #00d4ff; border: 1px solid #00d4ff;
+            padding: 10px 20px; cursor: pointer; font-weight: bold; text-transform: uppercase;
         }
-        .close-modal-btn:hover { background: #00d4ff; color: #000; }
-
         body { 
-            background: #050505; 
-            color: #00d4ff; 
-            font-family: 'Courier New', monospace; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 100vh; 
-            margin: 0; 
+            background: #050505; color: #00d4ff; font-family: 'Courier New', monospace; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            min-height: 100vh; margin: 0; 
         }
-        #canvas { 
-            border: 2px solid #00d4ff; 
-            box-shadow: 0 0 30px #00d4ff55; 
-            background: #000; 
-            max-width: 90vw;
-        }
-        .info { margin-top: 15px; text-align: center; font-size: 0.8rem; color: #00d4ff; opacity: 0.6; min-height: 20px; }
-        .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        
-        #status { 
-            text-align: center; 
-            min-height: 1.5em; 
-            margin-bottom: 20px; 
-            letter-spacing: 1px;
-            text-shadow: 0 0 8px #00d4ff;
-        }
-
-        button { 
-            background: transparent; 
-            color: #00d4ff; 
-            border: 1px solid #00d4ff; 
-            padding: 12px 24px; 
-            cursor: pointer; 
-            margin-top: 20px; 
-            text-transform: uppercase; 
-            letter-spacing: 2px;
-            transition: 0.3s;
-        }
-        button:hover { background: #00d4ff; color: #000; box-shadow: 0 0 15px #00d4ff; }
+        #canvas { border: 2px solid #00d4ff; box-shadow: 0 0 30px #00d4ff55; background: #000; max-width: 90vw; }
+        #status { text-align: center; min-height: 1.5em; margin-bottom: 20px; text-shadow: 0 0 8px #00d4ff; }
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        button { background: transparent; color: #00d4ff; border: 1px solid #00d4ff; padding: 12px 24px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: #00d4ff; color: #000; }
         .save-btn { border-color: #ff00ff; color: #ff00ff; }
-        .save-btn:hover { background: #ff00ff; color: #000; box-shadow: 0 0 15px #ff00ff; }
     </style>
 </head>
 <body>
 
     <div id="modal-overlay">
         <div id="modal-content">
-            <h3>DIAGNÓSTICO TECNOMÂNTICO</h3>
-            <p>Este sistema transmuta dados atmosféricos e temporais em geometria sigilar. Utilizamos <strong>temperatura, vento, umidade e o fluxo do tempo</strong> para moldar o caos lógico.</p>
-            <p><i>Projeto desenvolvido por <strong>Frater Markarios</strong>.</i></p>
-            <button class="close-modal-btn" onclick="fecharModal()">Iniciar Ritual</button>
+            <h3>FOCALIZAR INTENTO</h3>
+            <p>Escreva sua vontade abaixo. Suas palavras serão convertidas em frequência e integradas à geometria do caos.</p>
+            <input type="text" id="intento-input" placeholder="Ex: Eu possuo clareza mental" autocomplete="off">
+            <br>
+            <button class="close-modal-btn" onclick="fecharModal()">Consagrar e Iniciar</button>
+            <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 15px;"><i>Projeto: Frater Markarios</i></p>
         </div>
     </div>
 
-    <h4 id="status">INICIALIZANDO ÉTER...</h4>
+    <h2 id="status">INICIALIZANDO ÉTER...</h2>
     <canvas id="canvas" width="400" height="400"></canvas>
-    
-    <div id="weather-report" class="info">Aguardando comando...</div>
+    <div id="weather-report" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.6;"></div>
     
     <div class="controls">
-        <button onclick="iniciarCanalizacao()">Canalizar Dados</button>
-        <button class="save-btn" onclick="saveSigil()">Consagrar Imagem (PNG)</button>
+        <button onclick="iniciarCanalizacao()">Recanalizar</button>
+        <button class="save-btn" onclick="saveSigil()">Consagrar Imagem</button>
     </div>
 
     <script>
@@ -107,157 +64,93 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const statusEl = document.getElementById('status');
+        let intentoGlobal = "";
 
-        const mensagensIniciais = [
-            "SINCROZINANDO COM O ÉTER...",
-            "CONCENTRE SUA VONTADE NO SILÍCIO...",
-            "RESPIRA EM SINCRONIA COM OS DADOS...",
-            "ESTABILIZANDO FREQUÊNCIAS VIBRACIONAIS...",
-            "O CÓDIGO É APENAS O VEÍCULO...",
-            "PERCEBA O FLUXO DA INFORMAÇÃO..."
-        ];
-
-        const mensagensProcessando = [
-            "COLHENDO ENTROPIA ATMOSFÉRICA...",
-            "MAPEANDO VIRTUALIDADE GEOGRÁFICA...",
-            "CAPTURANDO O MOMENTO PRESENTE...",
-            "TRANSMUTANDO BITS EM GEOMETRIA...",
-            "FRAGMENTANDO O CAOS..."
-        ];
-
-        let indexMensagem = 0;
+        const mensagensProcessando = ["COLHENDO ENTROPIA...", "TRANSMUTANDO INTENTO...", "MAPEANDO VOTOS...", "FRAGMENTANDO O CAOS..."];
         let loopStatus;
 
-        function rotacionarMensagens(lista) {
-            clearInterval(loopStatus);
-            loopStatus = setInterval(() => {
-                statusEl.innerText = lista[indexMensagem];
-                indexMensagem = (indexMensagem + 1) % lista.length;
-            }, 3000);
+        function fecharModal() {
+            intentoGlobal = document.getElementById('intento-input').value || "CAOS";
+            document.getElementById('modal-overlay').style.display = 'none';
+            iniciarCanalizacao();
         }
 
-        rotacionarMensagens(mensagensIniciais);
-
-        function fecharModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
+        function rotacionarMensagens(lista) {
+            let i = 0;
+            clearInterval(loopStatus);
+            loopStatus = setInterval(() => {
+                statusEl.innerText = lista[i];
+                i = (i + 1) % lista.length;
+            }, 2500);
         }
 
         function iniciarCanalizacao() {
             rotacionarMensagens(mensagensProcessando);
-            fetchWeatherAndDraw();
-        }
-
-        function fetchWeatherAndDraw() {
-            navigator.geolocation.getCurrentPosition(position => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-
-                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`)
-                    .then(response => response.json())
-                    .then(data => {
-                        clearInterval(loopStatus);
-                        drawSigil(data);
-                    })
-                    .catch(err => {
-                        statusEl.innerText = "ERRO NA CONEXÃO MÍSTICA";
-                        clearInterval(loopStatus);
-                    });
-            }, error => {
-                statusEl.innerText = "LOCALIZAÇÃO NEGADA";
-                clearInterval(loopStatus);
-            });
+            navigator.geolocation.getCurrentPosition(pos => {
+                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&appid=${API_KEY}&units=metric`)
+                .then(r => r.json()).then(data => { clearInterval(loopStatus); drawSigil(data); });
+            }, err => { clearInterval(loopStatus); statusEl.innerText = "ERRO GEOGRÁFICO"; });
         }
 
         function drawSigil(data) {
             const temp = data.main.temp;         
             const wind = data.wind.speed || 1;    
             const humidity = data.main.humidity; 
-            const city = data.name;
-            
-            // Variáveis Temporais (As novas Chaves do Caos)
             const agora = new Date();
-            const horas = agora.getHours();
-            const minutos = agora.getMinutes();
-            const segundos = agora.getSeconds();
-            const milis = agora.getMilliseconds();
-            const entropyBase = agora.getTime();
+            
+            // CONVERSÃO DO INTENTO EM NÚMERO (Semente Mística)
+            let intentoValue = 0;
+            for(let i=0; i < intentoGlobal.length; i++) {
+                intentoValue += intentoGlobal.charCodeAt(i);
+            }
 
-            statusEl.innerText = `SIGILO DE ${city.toUpperCase()} FIRMADO`;
-            document.getElementById('weather-report').innerText = `T: ${temp}°C | H: ${humidity}% | HORA: ${horas}:${minutos}:${segundos}`;
+            statusEl.innerText = `SIGILO FIRMADO: ${intentoGlobal.toUpperCase()}`;
+            document.getElementById('weather-report').innerText = `T: ${temp}°C | INTENTO_VAL: ${intentoValue}`;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Cor baseada na Temperatura e nos Segundos
-            const hue = (200 - (temp * 3)) + (segundos * 2);
+            const hue = (200 - (temp * 3)) + (agora.getSeconds() * 2);
             ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-            ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+            ctx.shadowBlur = 10; ctx.shadowColor = ctx.strokeStyle;
             
-            let centerX = 200;
-            let centerY = 200;
+            let steps = Math.max(8, Math.floor((humidity / 3) + (intentoGlobal.length))); 
             let points = [];
-            
-            // O número de pontas agora é influenciado pelos Minutos
-            let steps = Math.max(6, Math.floor((humidity / 4) + (minutos / 10))); 
 
             for (let i = 0; i < steps; i++) {
                 let angle = (i / steps) * Math.PI * 2;
-                
-                // O vento e os SEGUNDOS distorcem o raio
-                // Usamos os milissegundos para uma variação sutil e irrepetível
-                let timeModifier = (segundos * 2) + (milis / 500);
-                let radius = 120 + Math.sin(i * wind + timeModifier) * 50;
-                
-                points.push({ x: centerX + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius });
+                // O Intento agora influencia o raio e a vibração
+                let radius = 110 + Math.sin(i * wind + intentoValue) * 60;
+                points.push({ x: 200 + Math.cos(angle) * radius, y: 200 + Math.sin(angle) * radius });
             }
 
-            // 1. Círculos de Contenção (Baseados nas Horas)
             ctx.beginPath();
-            ctx.lineWidth = 0.5;
-            // O raio do círculo externo muda levemente a cada hora do dia
-            ctx.arc(centerX, centerY, 150 + (horas), 0, Math.PI * 2);
-            ctx.setLineDash([2, 8]);
+            ctx.setLineDash([2, 5]);
+            ctx.arc(200, 200, 165, 0, Math.PI * 2);
             ctx.stroke();
-            ctx.setLineDash([]); 
+            ctx.setLineDash([]);
 
-            // 2. Conexões Geométricas
             ctx.beginPath();
-            ctx.lineWidth = 1.2;
+            ctx.lineWidth = 1.5;
             for (let i = 0; i < points.length; i++) {
                 let next = (i + 1) % steps;
-                // O padrão de cruzamento muda conforme os Segundos (Par ou Ímpar)
-                let jump = (segundos % 2 === 0) ? Math.floor(steps / 2) : Math.floor(steps / 3);
+                // O "pulo" das conexões depende do peso das palavras do intento
+                let jump = (intentoValue % 3 === 0) ? 2 : 3;
                 let far = (i + jump) % steps;
                 
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[next].x, points[next].y);
                 ctx.moveTo(points[i].x, points[i].y);
                 ctx.lineTo(points[far].x, points[far].y);
-                
-                // Nodos de energia
                 ctx.fillRect(points[i].x - 2, points[i].y - 2, 4, 4);
             }
             ctx.stroke();
 
-            // 3. Glifos de Saída
-            ctx.shadowBlur = 0;
-            ctx.font = "8px monospace";
-            ctx.fillStyle = "#ffffff33";
-            ctx.fillText(`FRATER MARKARIOS // ${entropyBase}`, 10, 390);
-            ctx.fillText(`TIME_SEED: ${horas}${minutos}${segundos}`, 10, 15);
-            
-            // Adiciona hashes temporais nos vértices
-            points.forEach((p, i) => {
-                if (i % 3 === 0) {
-                    ctx.fillText((entropyBase + i).toString(16).slice(-3), p.x + 5, p.y - 5);
-                }
-            });
+            ctx.shadowBlur = 0; ctx.font = "8px monospace"; ctx.fillStyle = "#ffffff33";
+            ctx.fillText(`FRATER MARKARIOS // INTENTO: ${intentoGlobal}`, 10, 390);
         }
 
         function saveSigil() {
             const link = document.createElement('a');
-            link.download = `sigilo-markarios-${Date.now()}.png`;
+            link.download = `sigilo-${intentoGlobal.replace(/\s+/g, '-')}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
