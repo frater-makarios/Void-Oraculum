@@ -23,6 +23,7 @@
             background: #020202; color: #00d4ff; font-family: 'Courier New', monospace; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box;
+            padding-bottom: 60px; /* Espaço para o footer não sobrepor */
         }
         #canvas { 
             border: 1px solid #00d4ff; background: #000; 
@@ -38,12 +39,31 @@
         .data-item { color: #00d4ff; opacity: 0.9; }
         .data-item span { color: #fff; font-weight: bold; }
         .controls { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+        
         button { 
             background: transparent; color: #00d4ff; border: 1px solid #00d4ff; 
             padding: 10px 20px; cursor: pointer; text-transform: uppercase; font-size: 0.8rem;
         }
         button:hover { background: #00d4ff; color: #000; }
         .save-btn { border-color: #ff00ff; color: #ff00ff; }
+        
+        /* FOOTER TECNOMÂNTICO */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            border-top: 1px solid #00d4ff44;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+            text-shadow: 0 0 5px #00d4ff88;
+        }
+        .footer-glitch { color: #ff00ff; }
+
         .instrucao { font-size: 0.8rem; color: #00d4ff; margin-bottom: 10px; text-align: left; }
     </style>
 </head>
@@ -62,7 +82,6 @@
             <input type="text" id="intento-input" placeholder="Digite seu intento aqui..." autocomplete="off">
             
             <button onclick="fecharModal()">Consagrar e Iniciar</button>
-            <p style="font-size: 0.6rem; margin-top: 25px; opacity: 0.4;">SISTEMA DESENVOLVIDO POR: FRATER MARKARIOS</p>
         </div>
     </div>
 
@@ -86,6 +105,10 @@
         <button onclick="iniciarCanalizacao()">Recanalizar Fluxo</button>
         <button class="save-btn" onclick="saveSigil()">Consagrar Imagem</button>
     </div>
+
+    <footer>
+        <span class="footer-glitch">[</span> DESENVOLVIDO POR FRATER MARKARIOS <span class="footer-glitch">]</span> &copy; 2026
+    </footer>
 
     <script>
         const API_KEY = '205dfbe3470e81f71e2b9f2f6a46443d'; 
