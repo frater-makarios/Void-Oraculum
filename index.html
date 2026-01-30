@@ -45,7 +45,7 @@
     <h2 id="status">SINCROZINANDO COM O ÉTER...</h2>
     <canvas id="canvas" width="400" height="400"></canvas>
     
-    <div id="weather-report" class="info">Clique para iniciar a canalização atmosférica...</div>
+    <div id="weather-report" class="info">Aguardando comando para canalização...</div>
     
     <div class="controls">
         <button onclick="fetchWeatherAndDraw()">Canalizar Clima Local</button>
@@ -66,7 +66,7 @@
 
                 fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`)
                     .then(response => {
-                        if (!response.ok) throw new Error('API Key ainda não ativa ou inválida');
+                        if (!response.ok) throw new Error('Falha na autenticação da API');
                         return response.json();
                     })
                     .then(data => {
@@ -75,11 +75,10 @@
                     .catch(err => {
                         document.getElementById('status').innerText = "ERRO NA CONEXÃO MÍSTICA";
                         console.error(err);
-                        alert("Erro: " + err.message + "\nNota: Chaves novas da OpenWeather podem demorar até 2 horas para ativar.");
                     });
             }, error => {
                 document.getElementById('status').innerText = "LOCALIZAÇÃO NEGADA";
-                alert("A tecnomancia exige saber onde você está no globo.");
+                alert("A geolocalização é necessária para o ritual.");
             });
         }
 
@@ -90,53 +89,86 @@
             const city = data.name;
             const entropy = Date.now();
 
-            document.getElementById('status').innerText = `ORÁCULO DE ${city.toUpperCase()}`;
-            document.getElementById('weather-report').innerText = `Temp: ${temp}°C | Vento: ${wind}m/s | Umidade: ${humidity}%`;
+            document.getElementById('status').innerText = `SIGILO DE ${city.toUpperCase()}`;
+            document.getElementById('weather-report').innerText = `Temp: ${temp}°C | Vento: ${wind}m/s | Humidade: ${humidity}%`;
 
-            // Limpar Canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Estética baseada no clima: Quente = Vermelho/Laranja | Frio = Azul/Ciano
-            const hue = 200 - (temp * 3); // Ajuste de cor dinâmico
+            const hue = 200 - (temp * 3);
             ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-            ctx.shadowBlur = 15;
+            ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+            ctx.shadowBlur = 10;
             ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
-            ctx.lineWidth = 2 + (wind / 3);
             
-            ctx.beginPath();
-            // A umidade dita quantos "vértices" a forma tem
-            let steps = Math.max(3, Math.floor(humidity / 4)); 
             let centerX = 200;
             let centerY = 200;
+            let points = [];
+            // O número de pontas depende da humidade
+            let steps = Math.max(6, Math.floor(humidity / 4)); 
 
-            for (let i = 0; i <= steps; i++) {
+            // 1. Calcular pontos de ancoragem
+            for (let i = 0; i < steps; i++) {
                 let angle = (i / steps) * Math.PI * 2;
-                // O vento distorce o raio da geometria
-                let variation = Math.sin(angle * wind + entropy) * 40;
-                let radius = 120 + variation; 
-                
-                let x = centerX + Math.cos(angle) * radius;
-                let y = centerY + Math.sin(angle) * radius;
-
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+                // O vento causa distorção nos raios
+                let radius = 130 + Math.sin(i * wind + entropy) * 40;
+                points.push({
+                    x: centerX + Math.cos(angle) * radius,
+                    y: centerY + Math.sin(angle) * radius
+                });
             }
 
-            ctx.closePath();
+            // 2. Desenhar Circunferências de Contenção (Geometria Alquímica)
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.arc(centerX, centerY, 160, 0, Math.PI * 2);
+            ctx.setLineDash([5, 10]); // Efeito rúnico tracejado
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 150, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Glifos informativos (A assinatura do tempo)
+            // 3. Traçar Conexões (Lógica de Sigilo)
+            ctx.beginPath();
+            ctx.lineWidth = 1.5 + (wind / 4);
+            for (let i = 0; i < points.length; i++) {
+                // Conecta cada ponto ao próximo e a um ponto oposto (salto de entropia)
+                let next = (i + 1) % steps;
+                let far = (i + Math.floor(steps / 2)) % steps;
+                
+                ctx.moveTo(points[i].x, points[i].y);
+                ctx.lineTo(points[next].x, points[next].y);
+                
+                ctx.moveTo(points[i].x, points[i].y);
+                ctx.lineTo(points[far].x, points[far].y);
+
+                // Desenha pequenos nodos (círculos) em cada vértice
+                ctx.fillRect(points[i].x - 2, points[i].y - 2, 4, 4);
+            }
+            ctx.stroke();
+
+            // 4. Inserir Glifos Digitais
             ctx.shadowBlur = 0;
-            ctx.fillStyle = "#ffffff22";
-            ctx.font = "10px monospace";
-            ctx.fillText(`HASH_TEMPO: ${entropy.toString(16)}`, 10, 20);
-            ctx.fillText(`COORD: ${city}`, 10, 380);
-            ctx.fillText(`TERM: ${temp}C / HUMID: ${humidity}%`, 10, 395);
+            ctx.font = "9px monospace";
+            ctx.fillStyle = "#ffffff44";
+            points.forEach((p, i) => {
+                if (i % 2 === 0) {
+                    ctx.fillText("0x" + (entropy + i).toString(16).slice(-4), p.x + 8, p.y);
+                }
+            });
+
+            // Núcleo do Sigilo
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillText(`STREAM_ID: ${entropy}`, 10, 390);
         }
 
         function saveSigil() {
             const link = document.createElement('a');
-            link.download = `sigilo-${Date.now()}.png`;
+            link.download = `sigilo-tecnomante-${Date.now()}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
